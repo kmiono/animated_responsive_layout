@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'destinations.dart';
 import 'models/data.dart' as data;
 import 'models/models.dart';
+import 'widgets/disappearing_bottom_navigation_bar.dart';
+import 'widgets/disappearing_navigation_rail.dart';
 import 'widgets/email_list_view.dart';
 
 void main() {
@@ -32,44 +33,68 @@ class Feed extends StatefulWidget {
 
 class _FeedState extends State<Feed> {
   late final _colorScheme = Theme.of(context).colorScheme;
-  late final _backgroundcolor = Color.alphaBlend(
+  late final _backgroundColor = Color.alphaBlend(
       _colorScheme.primary.withAlpha(36), _colorScheme.surface);
   int selectedIndex = 0;
+  bool wideScreen = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final double width = MediaQuery.of(context).size.width;
+    wideScreen = width > 600;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        color: _backgroundcolor,
-        child: EmailListView(
-          selectedIndex: selectedIndex,
-          onSelected: (index) {
-            setState(() {
-              selectedIndex = index;
-            });
-          },
-          currentUser: widget.currentUser,
-        ),
+      body: Row(
+        children: [
+          if (wideScreen)
+            DisappearingNavigationRail(
+              selectedIndex: selectedIndex,
+              backgroundColor: _backgroundColor,
+              onDestinationSelected: (index) {
+                setState(() {
+                  selectedIndex = index;
+                });
+              },
+            ),
+          Expanded(
+            child: Container(
+              color: _backgroundColor,
+              child: EmailListView(
+                selectedIndex: selectedIndex,
+                onSelected: (index) {
+                  setState(() {
+                    selectedIndex = index;
+                  });
+                },
+                currentUser: widget.currentUser,
+              ),
+            ),
+          ),
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: _colorScheme.tertiaryContainer,
-        foregroundColor: _colorScheme.onTertiaryContainer,
-        onPressed: () {},
-        child: const Icon(Icons.add),
-      ),
-      bottomNavigationBar: NavigationBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        destinations: destination.map<NavigationDestination>((d) {
-          return NavigationDestination(icon: Icon(d.icon), label: d.label);
-        }).toList(),
-        selectedIndex: selectedIndex,
-        onDestinationSelected: (index) {
-          setState(() {
-            selectedIndex = index;
-          });
-        },
-      ),
+      floatingActionButton: wideScreen
+          ? null
+          : FloatingActionButton(
+              backgroundColor: _colorScheme.tertiaryContainer,
+              foregroundColor: _colorScheme.onTertiaryContainer,
+              onPressed: () {},
+              child: const Icon(Icons.add),
+            ),
+      bottomNavigationBar: wideScreen
+          ? null
+          : DisappearingBottomNavigationBar(
+              selectedIndex: selectedIndex,
+              onDestinationSelected: (index) {
+                setState(() {
+                  selectedIndex = index;
+                });
+              },
+            ),
     );
   }
 }
