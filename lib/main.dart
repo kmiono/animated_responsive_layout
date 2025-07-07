@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
-import 'animations.dart'; // Add this import
+import 'animations.dart';
 import 'models/data.dart' as data;
 import 'models/models.dart';
-import 'widgets/animated_floating_action_button.dart'; // Add this import
+import 'transitions/list_detail_transition.dart'; // Add import
+import 'widgets/animated_floating_action_button.dart';
 import 'widgets/disappearing_bottom_navigation_bar.dart';
 import 'widgets/disappearing_navigation_rail.dart';
 import 'widgets/email_list_view.dart';
+import 'widgets/reply_list_view.dart';
 
 void main() {
   runApp(const MainApp());
@@ -101,14 +103,18 @@ class _FeedState extends State<Feed> {
               Expanded(
                 child: Container(
                   color: _backgroundColor,
-                  child: EmailListView(
-                    selectedIndex: selectedIndex,
-                    onSelected: (index) {
-                      setState(() {
-                        selectedIndex = index;
-                      });
-                    },
-                    currentUser: widget.currentUser,
+                  child: ListDetailTransition(
+                    animation: _railAnimation,
+                    one: EmailListView(
+                      selectedIndex: selectedIndex,
+                      onSelected: (index) {
+                        setState(() {
+                          selectedIndex = index;
+                        });
+                      },
+                      currentUser: widget.currentUser,
+                    ),
+                    two: const ReplyListView(),
                   ),
                 ),
               ),
